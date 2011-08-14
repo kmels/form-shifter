@@ -1,10 +1,10 @@
 Description
 -----------
 A gtk+ application that performs the following transformations to a polygon defined by a set of coordinates:
-  + scaling
-  + rotate
-  + shearing
-  + translation
+ + scaling
+ + rotate
+ + shearing
+ + translation
 
 Dependencies
 ------------
@@ -12,12 +12,12 @@ Dependencies
 
 How to compile and run
 ----------------------
-	cd src
 	make
 	./form-shifter
 	
 Todo
 ----
+ + Default color for house roof/body
  + Scale
  + Rotate
  + Shear

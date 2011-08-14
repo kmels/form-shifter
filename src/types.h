@@ -1,12 +1,14 @@
 #ifndef TYPES
 #define TYPES
 
+#include <gtk/gtk.h>
+
 /* A linked list for coordinates */
 typedef struct coordinate{
   int x;
   int y;
   struct coordinate *next;
-} Coordinates;
+} Coordinate;
 
 /* Color */
 typedef struct{
@@ -18,9 +20,15 @@ typedef struct{
 
 /* A filled pollygon, containing a list of points and a fill color */
 typedef struct{
-  Coordinates points;
+  Coordinate *points;
   int npoints;
   Color color;
 } FilledPolygon;
+
+/* Composed polygons (list of polygons) */
+typedef struct polygon_list{
+  FilledPolygon *polygon;
+  struct polygon_list *next;
+} FilledPolygonList;
 
 #endif
