@@ -28,29 +28,28 @@ GtkWidget *toolbar;
 int main( int argc,
           char *argv[] )
 {
-  GtkWidget *main_vbox;
+  GtkWidget *main_hbox;
   
 
   gtk_init (&argc, &argv);
   
   main_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_signal_connect (GTK_OBJECT (main_window), "destroy", GTK_SIGNAL_FUNC (gtk_main_quit), "WM destroy");
-  gtk_window_set_title (GTK_WINDOW(main_window), "Form Shifter");
-  gtk_widget_set_usize (GTK_WIDGET(main_window), 500, 700);
+  gtk_window_set_title (GTK_WINDOW(main_window), "Form Shifter");  
   
-  main_vbox = gtk_vbox_new (FALSE, 1);
-  gtk_container_border_width (GTK_CONTAINER (main_vbox), 1);
-  gtk_container_add (GTK_CONTAINER (main_window), main_vbox);
-  gtk_widget_show (main_vbox);
+  main_hbox = gtk_hbox_new (FALSE, 1);
+  gtk_container_border_width (GTK_CONTAINER (main_hbox), 1);
+  gtk_container_add (GTK_CONTAINER (main_window), main_hbox);
+  gtk_widget_show (main_hbox);
   
   /* top menu bar */
   widgets_get_canvas(&canvas);
-  gtk_box_pack_start (GTK_BOX (main_vbox), canvas, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (main_hbox), canvas, FALSE, TRUE, 0);
   g_signal_connect(canvas, "expose-event", G_CALLBACK(canvas_redraw), NULL);
   
   /* toolbar */
-  //widgets_get_toolbar(&toolbar);
-  //gtk_box_pack_start (GTK_BOX (main_vbox), toolbar, FALSE, TRUE, 0);
+  widgets_get_toolbar(&toolbar);
+  gtk_box_pack_start (GTK_BOX (main_hbox), toolbar, FALSE, TRUE, 0);
 
   gtk_widget_show_all (main_window);
 

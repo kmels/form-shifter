@@ -49,9 +49,9 @@ FilledPolygonList* polygons_get_house(){
   /* Roof polygon */ 
   FilledPolygon *house_roof = (FilledPolygon*) malloc(sizeof(FilledPolygon));
 
-  Coordinate *roof_top = get_coordinate(450,50,NULL);
-  Coordinate *roof_bottom_right = get_coordinate(600,100,roof_top);
-  Coordinate *roof_bottom_left = get_coordinate(300,100,roof_bottom_right);
+  Coordinate *roof_top = get_coordinate(200,50,NULL);
+  Coordinate *roof_bottom_right = get_coordinate(350,100,roof_top);
+  Coordinate *roof_bottom_left = get_coordinate(50,100,roof_bottom_right);
 
   house_roof->npoints = 3;
   house_roof->points = roof_bottom_left;
@@ -60,10 +60,10 @@ FilledPolygonList* polygons_get_house(){
   /* Body polygon */
   FilledPolygon *house_body = (FilledPolygon*) malloc(sizeof(FilledPolygon));
 
-  Coordinate *body_top_right = get_coordinate(600,100,NULL);
-  Coordinate *body_bottom_right = get_coordinate(600,300,body_top_right); 
-  Coordinate *body_bottom_left = get_coordinate(300,300,body_bottom_right); 
-  Coordinate *body_top_left = get_coordinate(300,100,body_bottom_left); 
+  Coordinate *body_top_right = get_coordinate(350,100,NULL);
+  Coordinate *body_bottom_right = get_coordinate(350,300,body_top_right); 
+  Coordinate *body_bottom_left = get_coordinate(50,300,body_bottom_right); 
+  Coordinate *body_top_left = get_coordinate(50,100,body_bottom_left); 
 
   house_body->points = body_top_left;
   house_body->npoints = 4;
