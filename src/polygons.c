@@ -19,6 +19,9 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdlib.h>
 #include "types.h"
+#include "widgets.h"
+
+GtkWidget *scale_x_input,*scale_y_input;
 
 Coordinate* get_coordinate(int x, int y, Coordinate *next){
   Coordinate *point = (Coordinate*) malloc(sizeof(Coordinate));
@@ -138,4 +141,44 @@ void polygons_list_paint_selected_points_on_canvas(FilledPolygonList *selected_p
     polygons_paint_points_on_canvas(next_polygon_node->polygon,cr);
     next_polygon_node = next_polygon_node->next;    
   }
+}
+
+/* Get polygon width */
+FilledPolygonDimensions get_polygon_dimensions(FilledPolygon *polygon){
+  FilledPolygonDimensions dimensions;  
+  int smallest_x = -1;
+  int largest_x = -1;
+  int smallest_y = -1;
+  int largest_y = -1;
+
+  Coordinate *current_point = polygon->points;
+
+  while (current_point != NULL){      
+    if (current_point->x < smallest_x || smallest_x<0)
+      smallest_x = current_point->x;
+    
+    if (current_point->x > largest_x || largest_x<0)
+      largest_x = current_point->x;
+    
+    if (current_point->y < smallest_y || smallest_y<0)
+	smallest_y = current_point->x;
+    
+    if (current_point->y > largest_y || largest_y<0)
+      largest_y = current_point->y;
+    
+    current_point = current_point->next;      
+  }
+
+  dimensions.width = largest_x - smallest_x;
+  dimensions.height = largest_y - smallest_y;
+  //  printf("x: %d,%d, y: %d,%d\n",smallest_x,largest_x,smallest_y,largest_y);
+  return dimensions;
+}
+
+/* Scales selected polygons */
+void  polygons_scale_selected (GtkButton *button, gpointer user_data){
+  int scale_x = atoi(gtk_entry_get_text(GTK_ENTRY(scale_x_input)));
+  int scale_y = atoi(gtk_entry_get_text(GTK_ENTRY(scale_y_input)));
+  
+  printf("%d,%d \n",scale_x,scale_y);
 }

@@ -22,6 +22,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include "types.h"
 #include "global.h"
 #include "polygons.h"
+#include "widgets.h"
 
 gboolean canvas_drawn;
 GtkWidget *canvas;

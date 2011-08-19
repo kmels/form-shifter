@@ -20,7 +20,11 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include "types.h"
 #include "global.h"
 #include "widgets.h"
+#include "polygons.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <strings.h>
+#include <string.h>
 
 /* from global */
 GtkWidget *scale_x_input,*scale_y_input;
@@ -60,7 +64,8 @@ void get_scale_tab(GtkWidget **container, GtkWidget **label){
 
   percentage_checkbutton = gtk_check_button_new_with_label("Keep proportions"); //keep proportions check button
   scale_button = gtk_button_new_with_label("OK");
-  
+  g_signal_connect(scale_button, "clicked", G_CALLBACK(polygons_scale_selected), NULL);   
+
   //pack x
   gtk_box_pack_start (GTK_BOX (x_hbox), x_label, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (x_hbox), scale_x_input, FALSE, TRUE, 0);
@@ -163,42 +168,26 @@ void widgets_get_bottom_toolbar(GtkWidget **toolbar){
   }
 }
 
-void widgets_update_input_values(){  
-  int smallest_x = -1;
-  int largest_x = -1;
-  int smallest_y = -1;
-  int largest_y = -1;
-
+void widgets_update_input_values(){      
   FilledPolygonList *current_polygon_node = selected_polygons;
+  int width = -1;
+  int height = -1;
 
-  Coordinate *current_point;
+  FilledPolygonDimensions current_polygon_dimensions;
 
   //iterate over polygons
-  while (current_polygon_node != NULL){
-    //iterate over points
-    current_point = current_polygon_node->polygon->points;
-
-    while (current_point != NULL){      
-      if (current_point->x < smallest_x || smallest_x<0)
-	smallest_x = current_point->x;
-      
-      if (current_point->x > largest_x || largest_x<0)
-	largest_x = current_point->x;
-
-      if (current_point->y < smallest_y || smallest_y<0)
-	smallest_y = current_point->x;
-      
-      if (current_point->y > largest_y || largest_y<0)
-	largest_y = current_point->y;
-            
-      current_point = current_point->next;      
-    }
+  while (current_polygon_node != NULL){    
+    current_polygon_dimensions = get_polygon_dimensions(current_polygon_node->polygon);
     
+    if (current_polygon_dimensions.width > width)
+      width = current_polygon_dimensions.width;
+    
+    if (current_polygon_dimensions.height > height)
+      height = current_polygon_dimensions.height;
+
     current_polygon_node = current_polygon_node->next;
   }
-
-  int width = largest_x - smallest_x;
-  int height = largest_y - smallest_y;
+  
   
   char *s = NULL;  
 

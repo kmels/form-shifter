@@ -31,8 +31,12 @@ typedef struct polygon_list{
   struct polygon_list *next;
 } FilledPolygonList;
 
-/* Tool types */
+/* Polygon dimensions (width & height) */
+typedef struct _FilledPolygonDimensions{
+  int width,height;
+} FilledPolygonDimensions;
 
+/* Tool types */
 typedef enum{
   FORM_SHIFTER_MOUSE_TOOL,
   FORM_SHIFTER_POLYGON_TOOL
