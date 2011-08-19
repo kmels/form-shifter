@@ -31,4 +31,23 @@ typedef struct polygon_list{
   struct polygon_list *next;
 } FilledPolygonList;
 
+/* Tool types */
+
+typedef enum{
+  FORM_SHIFTER_MOUSE_TOOL,
+  FORM_SHIFTER_POLYGON_TOOL
+} FormShifterToolItemType;
+
+typedef struct{
+  char *path_to_image;
+  char *name;
+  FormShifterToolItemType type;  
+} FormShifterToolItem;
+
+/* Mouse events */
+enum {
+  MOUSE_CLICK,
+  MOUSE_MOTION
+} MouseEventType;
+
 #endif

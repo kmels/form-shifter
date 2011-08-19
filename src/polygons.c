@@ -111,3 +111,31 @@ void polygons_list_paint_on_canvas(FilledPolygonList *polygon_list, cairo_t *cr)
     next_polygon_node = next_polygon_node->next;    
   }
 }
+
+/* Paints polygon's points */ 
+void polygons_paint_points_on_canvas(FilledPolygon *polygon, cairo_t *cr){
+  if (polygon->npoints < 3) //coordinates needed to draw a polygon
+    return;
+    
+  Coordinate *next_point = polygon->points;
+
+  while (next_point != NULL){
+    cairo_rectangle(cr,next_point->x-3,next_point->y-3,6,6);    
+    next_point = next_point->next;
+  } 
+  
+  cairo_fill(cr);
+}
+
+/* Paints selected points of polygons */
+void polygons_list_paint_selected_points_on_canvas(FilledPolygonList *selected_polygons,cairo_t *cr){
+  FilledPolygon *next_polygon = selected_polygons->polygon;
+  FilledPolygonList *next_polygon_node = selected_polygons->next;
+
+  polygons_paint_points_on_canvas(next_polygon,cr);
+  
+  while (next_polygon_node != NULL){
+    polygons_paint_points_on_canvas(next_polygon_node->polygon,cr);
+    next_polygon_node = next_polygon_node->next;    
+  }
+}

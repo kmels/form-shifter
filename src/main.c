@@ -20,10 +20,9 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include <gtk/gtk.h>
 #include "canvas.h"
 #include "widgets.h"
+#include "types.h"
 
-GtkWidget *main_window;
-GtkWidget *canvas;
-GtkWidget *toolbar;
+GtkWidget *main_window, *canvas, *right_toolbar,*bottom_toolbar,*vbox;
 
 int main( int argc,
           char *argv[] )
@@ -42,17 +41,28 @@ int main( int argc,
   gtk_container_add (GTK_CONTAINER (main_window), main_hbox);
   gtk_widget_show (main_hbox);
   
-  /* top menu bar */
+  vbox = gtk_vbox_new (FALSE, 1);
+  /* canvas  */
   widgets_get_canvas(&canvas);
-  gtk_box_pack_start (GTK_BOX (main_hbox), canvas, FALSE, TRUE, 0);
   g_signal_connect(canvas, "expose-event", G_CALLBACK(canvas_redraw), NULL);
+  gtk_box_pack_start (GTK_BOX (vbox), canvas, FALSE, TRUE, 0);
   
-  /* toolbar */
-  widgets_get_toolbar(&toolbar);
-  gtk_box_pack_start (GTK_BOX (main_hbox), toolbar, FALSE, TRUE, 0);
+  g_signal_connect(canvas, "button-press-event", G_CALLBACK(canvas_handle_mouse), GINT_TO_POINTER(MOUSE_CLICK));
+  g_signal_connect(canvas, "button-release-event", G_CALLBACK(canvas_handle_mouse), GINT_TO_POINTER(MOUSE_CLICK));
+  g_signal_connect(canvas, "motion-notify-event",G_CALLBACK(canvas_handle_mouse), GINT_TO_POINTER(MOUSE_MOTION));
+
+  /* bottom toolbar */
+  widgets_get_bottom_toolbar(&bottom_toolbar);
+  gtk_box_pack_start (GTK_BOX (vbox), bottom_toolbar, FALSE, TRUE, 0);
+  
+  gtk_box_pack_start (GTK_BOX (main_hbox), vbox, FALSE, TRUE, 0);
+
+  /* right toolbar */
+  widgets_get_right_toolbar(&right_toolbar);
+  gtk_box_pack_start (GTK_BOX (main_hbox), right_toolbar, FALSE, TRUE, 0);
 
   gtk_widget_show_all (main_window);
-
+  
   gtk_main ();
       
   return(0);
