@@ -17,11 +17,11 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include <gtk/gtk.h>
+#include <stdio.h>
 #include "types.h"
 #include "global.h"
 #include "widgets.h"
 #include "polygons.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>

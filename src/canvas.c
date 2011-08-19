@@ -40,6 +40,18 @@ void canvas_repaint_last_state(){
   widgets_update_input_values();
 }
 
+/* Draws all the polygons according to their last state */
+void canvas_repaint(){
+  cairo_t *cr = gdk_cairo_create(canvas->window);
+  printf ("REPAINT: selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
+  
+  polygons_list_paint_on_canvas(selected_polygons,cr);
+  polygons_list_paint_selected_points_on_canvas(selected_polygons,cr);
+
+  /* update input values */
+  widgets_update_input_values();
+}
+
 /* called on canvas expose event */
 gboolean canvas_redraw(GtkWidget *widget, gpointer data){
   if (!canvas_drawn){
