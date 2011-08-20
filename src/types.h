@@ -5,8 +5,7 @@
 
 /* A linked list for coordinates */
 typedef struct coordinate{
-  int x;
-  int y;
+  double x, y;
   struct coordinate *next;
 } Coordinate;
 
@@ -33,12 +32,12 @@ typedef struct polygon_list{
 
 /* Polygon dimensions (width & height) */
 typedef struct _FilledPolygonDimensions{
-  int width,height;
+  double width,height;
 } FilledPolygonDimensions;
 
 /* Tool types */
 typedef enum{
-  FORM_SHIFTER_MOUSE_TOOL,
+  FORM_SHIFTER_SELECT_TOOL,
   FORM_SHIFTER_POLYGON_TOOL
 } FormShifterToolItemType;
 

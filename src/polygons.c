@@ -25,7 +25,13 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 
 GtkWidget *scale_x_input,*scale_y_input;
 
-Coordinate* get_coordinate(int x, int y, Coordinate *next){
+Color get_color(guint16 red, guint16 green, guint16 blue, guint16 alpha){
+  Color color;
+  color.red = red; color.green = green; color.blue = blue; color.alpha = alpha;
+  return color;
+}
+
+Coordinate* get_coordinate(double x, double y, Coordinate *next){
   Coordinate *point = (Coordinate*) malloc(sizeof(Coordinate));
   point->x = x; 
   (*point).y = y;
@@ -53,11 +59,12 @@ FilledPolygonList* polygons_get_house(){
 
   /* Roof polygon */ 
   FilledPolygon *house_roof = (FilledPolygon*) malloc(sizeof(FilledPolygon));
+  house_roof->color = get_color(0,0,255,255);
 
   Coordinate *roof_top = get_coordinate(200,50,NULL);
   Coordinate *roof_bottom_right = get_coordinate(350,100,roof_top);
   Coordinate *roof_bottom_left = get_coordinate(50,100,roof_bottom_right);
-
+  
   house_roof->npoints = 3;
   house_roof->points = roof_bottom_left;
   //house_roof->color = NULL; //FIX ME!    
@@ -72,13 +79,14 @@ FilledPolygonList* polygons_get_house(){
 
   house_body->points = body_top_left;
   house_body->npoints = 4;
+  house_body->color = get_color(255,0,0,255);
 
   /* build list of polygons */
   FilledPolygonList *roof_node,*body_node;
-  roof_node = get_polygon_node(house_roof,NULL);
-  body_node = get_polygon_node(house_body,roof_node);
-
-  return body_node;
+  body_node = get_polygon_node(house_body,NULL);
+  roof_node = get_polygon_node(house_roof,body_node);
+  
+  return roof_node;
 }
 
 /* Paints a polygon */ 
@@ -92,7 +100,6 @@ void polygons_paint_on_canvas(FilledPolygon *polygon, cairo_t *cr){
   while (next_point != NULL){
     cairo_move_to(cr,previous_point->x,previous_point->y);
     cairo_line_to(cr,next_point->x,next_point->y);
-    printf("linea de %d,%d -> %d,%d\n",previous_point->x,previous_point->y,next_point->x,next_point->y);
     
     previous_point = next_point;
     next_point = previous_point->next;
@@ -103,6 +110,22 @@ void polygons_paint_on_canvas(FilledPolygon *polygon, cairo_t *cr){
   cairo_line_to(cr,polygon->points->x,polygon->points->y);
   
   cairo_stroke(cr);
+
+  //now fill
+  double x,y;
+  Color color = polygon->color;
+
+  cairo_set_source_rgba(cr,(double)color.red / 255, (double)color.green / 255, (double)color.blue / 255,(double)color.alpha/255);
+  for (x=0; x < canvas->allocation.width; x++){
+    for (y=0; y < canvas->allocation.height; y++){
+      if (canvas_coordinate_is_within_polygon(x,y,polygon)){
+	cairo_move_to(cr,x,y);
+	cairo_rectangle(cr,x,y,1,1);
+	cairo_fill(cr);
+	}
+    }
+  }
+
 }
 
 /* Paints a list of polygons */
@@ -174,14 +197,12 @@ FilledPolygonDimensions get_polygon_dimensions(FilledPolygon *polygon){
 
   dimensions.width = largest_x - smallest_x;
   dimensions.height = largest_y - smallest_y;
-  //  printf("x: %d,%d, y: %d,%d\n",smallest_x,largest_x,smallest_y,largest_y);
   return dimensions;
 }
 
 /* Duplicates a polygon*/
 FilledPolygon *polygon_duplicate(FilledPolygon *polygon){
   int i; 
-  printf("Duplicando %d puntos\n",polygon->npoints);
   FilledPolygon *duplicated_polygon = (FilledPolygon*) malloc(sizeof(FilledPolygon));
   duplicated_polygon->color = polygon->color;
   duplicated_polygon->npoints = polygon->npoints;
@@ -217,10 +238,6 @@ FilledPolygon *polygon_scale(FilledPolygon *source_polygon, double factor_x, dou
   Coordinate *current_point = polygon->points;
   
   while (current_point != NULL){
-    int new_x = (int) current_point->x*factor_x;
-    int new_y = (int) current_point->y*factor_y;
-
-    printf("(%d,%d) => (%d,%d) con %f,%f\n",current_point->x,current_point->y,new_x,new_y,factor_x,factor_y);
     current_point->x = (int) current_point->x * factor_x;
     current_point->y = (int) current_point->y * factor_y;    
     
@@ -241,7 +258,7 @@ void  polygons_scale_selected (GtkButton *button, gpointer user_data){
   /* iterate each selected polygon, and scale */
   FilledPolygonList *current_scaling_polygon_node = selected_polygons;
 
-  printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
+  //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
 
   while (current_scaling_polygon_node != NULL){    
     FilledPolygon *polygon_source = current_scaling_polygon_node->polygon;
@@ -253,15 +270,31 @@ void  polygons_scale_selected (GtkButton *button, gpointer user_data){
     factor_x = scale_x_target/dimensions.width;
     factor_y = scale_y_target/dimensions.height;
     
-    printf("source antes: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
+    //printf("source antes: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
     current_scaling_polygon_node->polygon = polygon_scale(polygon_source,factor_x,factor_y);
-    printf("source despues: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
+    //printf("source despues: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
     
     current_scaling_polygon_node = current_scaling_polygon_node->next;
-    printf("end scaling \n\n\n\n\n");
+    //printf("end scaling \n\n\n\n\n");
   }
   
-  printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
+  //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
 
   canvas_repaint();
+}
+
+void polygon_get_coordinates_array(Coordinate array[],FilledPolygon *polygon){
+  //Coordinate array[polygon->npoints];
+
+  Coordinate *current_point = polygon->points;
+  int current_index = 0;
+
+  while (current_point != NULL){
+    array[current_index].x = current_point->x;
+    array[current_index].y = current_point->y;
+    current_point = current_point->next;      
+    
+    current_index++;
+  }
+  
 }

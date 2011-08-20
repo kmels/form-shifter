@@ -47,6 +47,7 @@ int main( int argc,
   g_signal_connect(canvas, "expose-event", G_CALLBACK(canvas_redraw), NULL);
   gtk_box_pack_start (GTK_BOX (vbox), canvas, FALSE, TRUE, 0);
   
+  gtk_widget_add_events(canvas, GDK_ALL_EVENTS_MASK);
   g_signal_connect(canvas, "button-press-event", G_CALLBACK(canvas_handle_mouse), GINT_TO_POINTER(MOUSE_CLICK));
   g_signal_connect(canvas, "button-release-event", G_CALLBACK(canvas_handle_mouse), GINT_TO_POINTER(MOUSE_CLICK));
   g_signal_connect(canvas, "motion-notify-event",G_CALLBACK(canvas_handle_mouse), GINT_TO_POINTER(MOUSE_MOTION));

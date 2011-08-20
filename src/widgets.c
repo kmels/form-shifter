@@ -32,7 +32,7 @@ GtkWidget *scale_x_input,*scale_y_input;
 FormShifterToolItemType current_tool;
 
 static FormShifterToolItem toolbar_item_icons[] = {
-  { "icons/icon_select.png", "Select", FORM_SHIFTER_MOUSE_TOOL },
+  { "icons/icon_select.png", "Select", FORM_SHIFTER_SELECT_TOOL },
   { "icons/icon_polygon.png", "Polygon", FORM_SHIFTER_POLYGON_TOOL }
 };
 
@@ -133,7 +133,7 @@ void widgets_get_right_toolbar(GtkWidget **toolbar){
   gtk_box_pack_start(GTK_BOX(*toolbar), tabs, FALSE, TRUE, 0);
 }
 
-void assign_current_tool(GtkWidget *widget, gpointer data){  
+void assign_current_tool(GtkWidget *widget, gpointer data){
   current_tool = (FormShifterToolItemType) data;
   gtk_widget_grab_focus(widget);
 }
