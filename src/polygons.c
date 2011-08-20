@@ -46,6 +46,36 @@ FilledPolygonList* get_polygon_node(FilledPolygon *polygon, FilledPolygonList *n
   return node;
 }
 
+/* Compares two polygons, return true iff they contain they've the same coordinates */
+gboolean polygons_are_equal(FilledPolygon *polygon1,FilledPolygon *polygon2){
+  Coordinate *comparing_point1 = polygon1->points;
+  Coordinate *comparing_point2 = polygon2->points;
+  
+  while(comparing_point1 != NULL && comparing_point2 != NULL){
+    if (comparing_point1->x != comparing_point2->x || comparing_point1->y != comparing_point2->y)
+      return FALSE;
+
+      comparing_point1 = comparing_point1->next;
+      comparing_point2 = comparing_point2->next;
+  }  
+  
+  return TRUE;
+}
+
+/* Checks if a polygon is contained in a polygon list */
+gboolean polygons_list_contains_polygon(FilledPolygonList *polygons_list,FilledPolygon *polygon){   
+  FilledPolygonList *current_polygon_node = polygons_list;
+
+  while (current_polygon_node != NULL){
+    if (polygons_are_equal(current_polygon_node->polygon,polygon))
+      return TRUE;
+    
+    current_polygon_node = current_polygon_node->next;
+  }
+
+  return FALSE;
+}
+
 /* Default polygon, a house */
 FilledPolygonList* polygons_get_house(){
   /* returns a composed polygon of this form
@@ -145,24 +175,30 @@ void polygons_list_paint_on_canvas(FilledPolygonList *polygon_list, cairo_t *cr)
 void polygons_paint_points_on_canvas(FilledPolygon *polygon, cairo_t *cr){
   if (polygon->npoints < 3) //coordinates needed to draw a polygon
     return;
-    
-  Coordinate *next_point = polygon->points;
-
-  while (next_point != NULL){
+  
+  Coordinate *next_point = polygon->points;  
+  
+  int i; 
+  for (i = 0; i < polygon->npoints ; i++){
     cairo_rectangle(cr,next_point->x-3,next_point->y-3,6,6);    
     next_point = next_point->next;
-  } 
+  }  
   
   cairo_fill(cr);
 }
 
 /* Paints selected points of polygons */
 void polygons_list_paint_selected_points_on_canvas(FilledPolygonList *selected_polygons,cairo_t *cr){
+  if (selected_polygons==NULL){ //if there are not any selected polygons
+    return;
+  }  
+  
+  cairo_set_source_rgba(cr,0,0,0,1);
   FilledPolygon *next_polygon = selected_polygons->polygon;
   FilledPolygonList *next_polygon_node = selected_polygons->next;
-
+    
   polygons_paint_points_on_canvas(next_polygon,cr);
-  
+    
   while (next_polygon_node != NULL){
     polygons_paint_points_on_canvas(next_polygon_node->polygon,cr);
     next_polygon_node = next_polygon_node->next;    
@@ -172,12 +208,14 @@ void polygons_list_paint_selected_points_on_canvas(FilledPolygonList *selected_p
 /* Get polygon width */
 FilledPolygonDimensions get_polygon_dimensions(FilledPolygon *polygon){
   FilledPolygonDimensions dimensions;  
-  int smallest_x = -1;
-  int largest_x = -1;
-  int smallest_y = -1;
-  int largest_y = -1;
+  double smallest_x = -1;
+  double largest_x = -1;
+  double smallest_y = -1;
+  double largest_y = -1;
 
   Coordinate *current_point = polygon->points;
+  printf("GET POLYGON DIMENSIONS DE: \n");
+  print_polygon(polygon);
 
   while (current_point != NULL){      
     if (current_point->x < smallest_x || smallest_x<0)
@@ -187,14 +225,14 @@ FilledPolygonDimensions get_polygon_dimensions(FilledPolygon *polygon){
       largest_x = current_point->x;
     
     if (current_point->y < smallest_y || smallest_y<0)
-	smallest_y = current_point->x;
+	smallest_y = current_point->y;
     
     if (current_point->y > largest_y || largest_y<0)
       largest_y = current_point->y;
     
     current_point = current_point->next;      
   }
-
+  printf("RESULTS: %f, %f .. %f, %f\n",smallest_x,largest_x,smallest_y,largest_y);
   dimensions.width = largest_x - smallest_x;
   dimensions.height = largest_y - smallest_y;
   return dimensions;
@@ -271,7 +309,11 @@ void  polygons_scale_selected (GtkButton *button, gpointer user_data){
     factor_y = scale_y_target/dimensions.height;
     
     //printf("source antes: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
+    //find it within all polygons, and reset
+    canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,polygon_scale(polygon_source,factor_x,factor_y));
+    
     current_scaling_polygon_node->polygon = polygon_scale(polygon_source,factor_x,factor_y);
+    //
     //printf("source despues: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
     
     current_scaling_polygon_node = current_scaling_polygon_node->next;

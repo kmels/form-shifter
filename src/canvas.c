@@ -29,9 +29,17 @@ GtkWidget *canvas;
 FilledPolygonList *selected_polygons;
 FilledPolygonList *all_polygons;
 
+void print_polygon(FilledPolygon *polygon){
+  printf("POLYGON: \n");
+  Coordinate *current_point = polygon->points;
+
+  while (current_point != NULL){
+    printf("%f,%f \n",current_point->x,current_point->y);
+    current_point = current_point->next;    
+  }
+}
 /* Draws canvas initial state i.e. with 2 polygons forming a house */
 void canvas_paint_initial_state(){
-  printf("paint initial state\n");
   cairo_t *cr = gdk_cairo_create(canvas->window);
   FilledPolygonList *house = polygons_get_house();
   polygons_list_paint_on_canvas(house,cr);
@@ -46,9 +54,13 @@ void canvas_paint_initial_state(){
 void canvas_repaint(){
   cairo_t *cr = gdk_cairo_create(canvas->window);  
   
-  polygons_list_paint_on_canvas(selected_polygons,cr);
-  polygons_list_paint_selected_points_on_canvas(selected_polygons,cr);
+  //paint white canvas
+  cairo_set_source_rgba(cr,1,1,1,1); 
+  cairo_paint(cr);
 
+  polygons_list_paint_on_canvas(all_polygons,cr);
+  polygons_list_paint_selected_points_on_canvas(selected_polygons,cr);
+  
   /* update input values */
   widgets_update_input_values();
 }
@@ -95,28 +107,36 @@ inline gboolean canvas_coordinate_is_within_polygon(double x, double y,FilledPol
 }
 
 /* Adds a polygon to the selected polygons list */
-void canvas_add_polygon_to_selected_list(FilledPolygon *polygon){    
+void canvas_add_polygon_to_selected_list(FilledPolygon *polygon){
   if (selected_polygons==NULL){
-    printf("NIL\n");
     selected_polygons = (FilledPolygonList*) malloc(sizeof(FilledPolygonList));
     selected_polygons->polygon = polygon;
     selected_polygons->next = NULL;
-    polygons_paint_points_on_canvas(polygon, gdk_cairo_create(canvas->window));
+    
+    print_polygon(selected_polygons->polygon);
+
     return;
   }
 
   //then, there's already a selected one
   FilledPolygonList *selected_polygon_node = selected_polygons;
-
+  //printf("%p == %p ??\n");
+  
   while (selected_polygon_node->next != NULL){
     selected_polygon_node = selected_polygon_node->next;    
   }
   
   //add to the last one
   selected_polygon_node->next = (FilledPolygonList*) malloc(sizeof(FilledPolygonList));
-  selected_polygon_node->polygon = polygon;
+  selected_polygon_node->next->polygon = polygon;
   selected_polygon_node->next->next = NULL;
-  polygons_paint_points_on_canvas(polygon, gdk_cairo_create(canvas->window));
+  print_polygon(selected_polygon_node->next->polygon);
+  //printf("%p == %p ??\n",selected_polygons->next->);
+  FilledPolygonList *dummie = selected_polygons;
+
+  while (dummie != NULL){
+    dummie = dummie->next;    
+  }
   return;  
 }
 
@@ -128,10 +148,12 @@ void canvas_select_polygon_from_coordinates(int x,int y){
 
   while (next_polygon_node != NULL){
     
-    if (canvas_coordinate_is_within_polygon(x,y,next_polygon_node->polygon)){
+    if (canvas_coordinate_is_within_polygon(x,y,next_polygon_node->polygon)){ //found polygon in given coordinate      
       //mark polygon as selected
       found_polygon = TRUE;
-      canvas_add_polygon_to_selected_list(next_polygon_node->polygon);      
+      
+      if (!polygons_list_contains_polygon(selected_polygons,next_polygon_node->polygon))
+	canvas_add_polygon_to_selected_list(next_polygon_node->polygon);
       break;
     }
 
@@ -139,10 +161,10 @@ void canvas_select_polygon_from_coordinates(int x,int y){
   }
 
   if (!found_polygon){ //then, clear selected polygons
-    printf("CLEARING!\n");
-    selected_polygons = NULL;
-    //canvas_repaint();
+    selected_polygons = NULL;    
   }
+  
+  canvas_repaint();
 }
 
 gboolean canvas_handle_mouse(GtkWidget *widget, void *e, gpointer *t){
@@ -176,4 +198,19 @@ gboolean canvas_handle_mouse(GtkWidget *widget, void *e, gpointer *t){
   }
   }
   return TRUE;
+}
+
+/* Replaces given polygon in all_polygons list */
+void canvas_all_polygons_replace_existing_polygon(FilledPolygon *polygon_to_replace, FilledPolygon *replaced_polygon){
+  FilledPolygonList *current_polygon_node = all_polygons;
+
+  while (current_polygon_node != NULL){     
+    if (polygons_are_equal(current_polygon_node->polygon,polygon_to_replace)){ //is this one the one we're replacing?
+      printf("ENCONTRO!\n");
+      current_polygon_node->polygon = replaced_polygon;
+    }
+    
+    current_polygon_node = current_polygon_node->next;
+  }
+  printf("END\n");
 }
