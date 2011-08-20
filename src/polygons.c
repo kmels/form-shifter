@@ -77,7 +77,7 @@ gboolean polygons_list_contains_polygon(FilledPolygonList *polygons_list,FilledP
 }
 
 /* Default polygon, a house */
-FilledPolygonList* polygons_get_house(){
+FilledPolygon* polygons_get_house(){
   /* returns a composed polygon of this form
      /\
     /  \
@@ -87,36 +87,23 @@ FilledPolygonList* polygons_get_house(){
     |__|
    */
 
-  /* Roof polygon */ 
-  FilledPolygon *house_roof = (FilledPolygon*) malloc(sizeof(FilledPolygon));
-  house_roof->color = get_color(0,0,255,255);
-
-  Coordinate *roof_top = get_coordinate(200,50,NULL);
-  Coordinate *roof_bottom_right = get_coordinate(350,100,roof_top);
-  Coordinate *roof_bottom_left = get_coordinate(50,100,roof_bottom_right);
+  /* house polygon */ 
+  FilledPolygon *house = (FilledPolygon*) malloc(sizeof(FilledPolygon));
+  house->color = get_color(0,0,255,255);
   
-  house_roof->npoints = 3;
-  house_roof->points = roof_bottom_left;
-  //house_roof->color = NULL; //FIX ME!    
+  Coordinate *roof_right = get_coordinate(350,100,NULL);
+  Coordinate *roof_top = get_coordinate(200,50,roof_right);
+  Coordinate *roof_left = get_coordinate(50,100,roof_top);
+
+  Coordinate *roof_right2 = get_coordinate(350,100,roof_left);
+  Coordinate *bottom_right = get_coordinate(350,300,roof_right2);
+  Coordinate *bottom_left = get_coordinate(50,300,bottom_right);
+  Coordinate *top_left = get_coordinate(50,100,bottom_left);
   
-  /* Body polygon */
-  FilledPolygon *house_body = (FilledPolygon*) malloc(sizeof(FilledPolygon));
+  house->points = top_left;
+  house->npoints = 7;
 
-  Coordinate *body_top_right = get_coordinate(350,100,NULL);
-  Coordinate *body_bottom_right = get_coordinate(350,300,body_top_right); 
-  Coordinate *body_bottom_left = get_coordinate(50,300,body_bottom_right); 
-  Coordinate *body_top_left = get_coordinate(50,100,body_bottom_left); 
-
-  house_body->points = body_top_left;
-  house_body->npoints = 4;
-  house_body->color = get_color(255,0,0,255);
-
-  /* build list of polygons */
-  FilledPolygonList *roof_node,*body_node;
-  body_node = get_polygon_node(house_body,NULL);
-  roof_node = get_polygon_node(house_roof,body_node);
-  
-  return roof_node;
+  return house;
 }
 
 /* Paints a polygon */ 

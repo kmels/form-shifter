@@ -30,20 +30,19 @@ FilledPolygonList *selected_polygons;
 FilledPolygonList *all_polygons;
 
 void print_polygon(FilledPolygon *polygon){
-  printf("POLYGON: \n");
   Coordinate *current_point = polygon->points;
 
   while (current_point != NULL){
-    printf("%f,%f \n",current_point->x,current_point->y);
     current_point = current_point->next;    
   }
 }
+
 /* Draws canvas initial state i.e. with 2 polygons forming a house */
 void canvas_paint_initial_state(){
   cairo_t *cr = gdk_cairo_create(canvas->window);
-  FilledPolygonList *house = polygons_get_house();
-  polygons_list_paint_on_canvas(house,cr);
-  all_polygons = house;
+  FilledPolygon *house = polygons_get_house();
+  polygons_paint_on_canvas(house,cr);
+  all_polygons = get_polygon_node(house,NULL);
   //polygons_list_paint_selected_points_on_canvas(all_polygons,cr);
 
   /* update input values */
