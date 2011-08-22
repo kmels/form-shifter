@@ -22,6 +22,7 @@ typedef struct{
   Coordinate *points;
   int npoints;
   Color color;
+  Coordinate *rotate_pivot;
 } FilledPolygon;
 
 /* Composed polygons (list of polygons) */

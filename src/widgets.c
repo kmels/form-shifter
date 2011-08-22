@@ -27,7 +27,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 /* from global */
-GtkWidget *scale_x_input,*scale_y_input;
+GtkWidget *scale_x_input,*scale_y_input,*degrees_input;
 
 FormShifterToolItemType current_tool;
 
@@ -89,7 +89,7 @@ void get_rotate_tab(GtkWidget **container, GtkWidget **label){
   *container = gtk_vbox_new(FALSE,1);
   *label = gtk_label_new("Rotate");
   
-  GtkWidget *degrees_hbox,*degrees_label,*degrees_input,*degrees_button,*animation_time_hbox,*animation_time_label,*animation_time_input;
+  GtkWidget *degrees_hbox,*degrees_label,*degrees_button,*animation_time_hbox,*animation_time_label,*animation_time_input;
 
   /* create widgets */
   degrees_hbox = gtk_hbox_new (FALSE, 1);  
@@ -101,7 +101,8 @@ void get_rotate_tab(GtkWidget **container, GtkWidget **label){
   animation_time_input = gtk_spin_button_new_with_range(1,60,1); //from 1 to 60 by 1
 
   degrees_button = gtk_button_new_with_label("OK");
-  
+  g_signal_connect(degrees_button, "clicked", G_CALLBACK(polygons_rotate_selected), NULL);   
+
   //degrees pack
   gtk_box_pack_start (GTK_BOX (degrees_hbox), degrees_label, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (degrees_hbox), degrees_input, FALSE, TRUE, 0);

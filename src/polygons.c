@@ -22,6 +22,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include "widgets.h"
 #include "global.h"
 #include "canvas.h"
+#include <math.h>
 
 GtkWidget *scale_x_input,*scale_y_input;
 
@@ -102,6 +103,7 @@ FilledPolygon* polygons_get_house(){
   
   house->points = top_left;
   house->npoints = 7;
+  house->rotate_pivot = get_coordinate(200, 150, NULL); //mid coordinate
 
   return house;
 }
@@ -201,8 +203,6 @@ FilledPolygonDimensions get_polygon_dimensions(FilledPolygon *polygon){
   double largest_y = -1;
 
   Coordinate *current_point = polygon->points;
-  printf("GET POLYGON DIMENSIONS DE: \n");
-  print_polygon(polygon);
 
   while (current_point != NULL){      
     if (current_point->x < smallest_x || smallest_x<0)
@@ -219,7 +219,7 @@ FilledPolygonDimensions get_polygon_dimensions(FilledPolygon *polygon){
     
     current_point = current_point->next;      
   }
-  printf("RESULTS: %f, %f .. %f, %f\n",smallest_x,largest_x,smallest_y,largest_y);
+
   dimensions.width = largest_x - smallest_x;
   dimensions.height = largest_y - smallest_y;
   return dimensions;
@@ -231,7 +231,8 @@ FilledPolygon *polygon_duplicate(FilledPolygon *polygon){
   FilledPolygon *duplicated_polygon = (FilledPolygon*) malloc(sizeof(FilledPolygon));
   duplicated_polygon->color = polygon->color;
   duplicated_polygon->npoints = polygon->npoints;
-  
+  duplicated_polygon->rotate_pivot = polygon->rotate_pivot;
+
   //source current point
   Coordinate *polygon_source_current = polygon->points;
 
@@ -272,11 +273,41 @@ FilledPolygon *polygon_scale(FilledPolygon *source_polygon, double factor_x, dou
   return polygon;
 }
 
+/* Scales a polygon, returns a new one*/
+FilledPolygon *polygon_rotate(FilledPolygon *source_polygon, double degrees){    
+  if (source_polygon->npoints < 3) //coordinates needed to draw a polygon
+    return NULL;
+  
+  double radians = degrees*M_PI/180.0;    
+  
+  FilledPolygon *polygon = polygon_duplicate(source_polygon);  //copy the polygon
+  
+  //get rotating pivot coordinate
+  double x_origin = polygon->rotate_pivot->x;
+  double y_origin = polygon->rotate_pivot->y; 
+
+  //map every coordinate, start from the first polygon coordinate again.
+  Coordinate *current_point = polygon->points;   
+  
+  while (current_point != NULL){
+    double other_x = current_point->x-x_origin;
+    double other_y = y_origin - current_point->y;
+        
+    current_point->x = other_x * cos(radians) - other_y * sin(radians) + x_origin;
+    current_point->y = y_origin - (other_x * sin(radians) + (other_y) * cos(radians));
+    
+    current_point = current_point->next;
+  }
+  
+  return polygon;
+}
+
+
 /* Scales selected polygons */
 void  polygons_scale_selected (GtkButton *button, gpointer user_data){
   int scale_x_target = atoi(gtk_entry_get_text(GTK_ENTRY(scale_x_input)));
   int scale_y_target = atoi(gtk_entry_get_text(GTK_ENTRY(scale_y_input)));
-    
+  
   //scaling factors
   double factor_x,factor_y;
 
@@ -300,6 +331,35 @@ void  polygons_scale_selected (GtkButton *button, gpointer user_data){
     canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,polygon_scale(polygon_source,factor_x,factor_y));
     
     current_scaling_polygon_node->polygon = polygon_scale(polygon_source,factor_x,factor_y);
+    //
+    //printf("source despues: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
+    
+    current_scaling_polygon_node = current_scaling_polygon_node->next;
+    //printf("end scaling \n\n\n\n\n");
+  }
+  
+  //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
+
+  canvas_repaint();
+}
+
+/* Scales selected polygons */
+void  polygons_rotate_selected (GtkButton *button, gpointer user_data){
+  int degrees = atoi(gtk_entry_get_text(GTK_ENTRY(degrees_input)));
+    
+  /* iterate each selected polygon, and scale */
+  FilledPolygonList *current_scaling_polygon_node = selected_polygons;
+
+
+  while (current_scaling_polygon_node != NULL){    
+    FilledPolygon *polygon_source = current_scaling_polygon_node->polygon;
+
+            
+    //printf("source antes: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
+    //find it within all polygons, and reset
+    canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,polygon_rotate(polygon_source,degrees));
+    
+    current_scaling_polygon_node->polygon = polygon_rotate(polygon_source,degrees);
     //
     //printf("source despues: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
     
