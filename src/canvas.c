@@ -35,8 +35,7 @@ void canvas_paint_initial_state(){
   FilledPolygon *house = polygons_get_house();
   polygons_paint_on_canvas(house,cr);
   all_polygons = get_polygon_node(house,NULL);
-  //polygons_list_paint_selected_points_on_canvas(all_polygons,cr);
-
+  
   /* update input values */
   widgets_update_input_values();
 }

@@ -61,6 +61,7 @@ void get_scale_tab(GtkWidget **container, GtkWidget **label){
   units_combobox = gtk_combo_box_text_new();
   gtk_combo_box_append_text(GTK_COMBO_BOX(units_combobox),"pixels");
   gtk_combo_box_append_text(GTK_COMBO_BOX(units_combobox),"percentage");
+  gtk_combo_box_set_active(GTK_COMBO_BOX(units_combobox),0);
 
   percentage_checkbutton = gtk_check_button_new_with_label("Keep proportions"); //keep proportions check button
   scale_button = gtk_button_new_with_label("OK");
