@@ -32,8 +32,8 @@ GtkWidget *scale_x_input,*scale_y_input,*degrees_input,*shears_axis_input,*shear
 FormShifterToolItemType current_tool;
 
 static FormShifterToolItem toolbar_item_icons[] = {
-  { "icons/icon_select.png", "Select", FORM_SHIFTER_SELECT_TOOL },
-  { "icons/icon_polygon.png", "Polygon", FORM_SHIFTER_POLYGON_TOOL }
+  { "icons/icon_select.png", "Select", FORM_SHIFTER_SELECT_TOOL }
+  //  { "icons/icon_polygon.png", "Polygon", FORM_SHIFTER_POLYGON_TOOL }
 };
 
 /* adds the toolbar to a container */
@@ -60,7 +60,7 @@ void get_scale_tab(GtkWidget **container, GtkWidget **label){
       
   units_combobox = gtk_combo_box_text_new();
   gtk_combo_box_append_text(GTK_COMBO_BOX(units_combobox),"pixels");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(units_combobox),"percentage");
+  //gtk_combo_box_append_text(GTK_COMBO_BOX(units_combobox),"percentage");
   gtk_combo_box_set_active(GTK_COMBO_BOX(units_combobox),0);
 
   percentage_checkbutton = gtk_check_button_new_with_label("Keep proportions"); //keep proportions check button
@@ -79,7 +79,7 @@ void get_scale_tab(GtkWidget **container, GtkWidget **label){
   //pack main scale box
   gtk_box_pack_start (GTK_BOX (*container), x_hbox, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (*container), y_hbox, FALSE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (*container), percentage_checkbutton, FALSE, TRUE, 0);
+  //gtk_box_pack_start (GTK_BOX (*container), percentage_checkbutton, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (*container), scale_button, FALSE, TRUE, 0);
   
   /* disable it, there are no points selected */
