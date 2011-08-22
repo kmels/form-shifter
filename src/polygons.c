@@ -404,13 +404,52 @@ void  polygons_shear_selected (GtkButton *button, gpointer user_data){
   while (current_scaling_polygon_node != NULL){    
     FilledPolygon *polygon_source = current_scaling_polygon_node->polygon;
     
-    FilledPolygon *new_polygon = polygon_shear(polygon_source,shear_quantity,gtk_combo_box_get_active_text(shears_axis_input));
+    FilledPolygon *new_polygon = polygon_shear(polygon_source,shear_quantity,gtk_combo_box_get_active_text(GTK_COMBO_BOX(shears_axis_input)));
     canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,new_polygon);
     current_scaling_polygon_node->polygon = new_polygon;    
     current_scaling_polygon_node = current_scaling_polygon_node->next;
   }
   
   //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
+
+  canvas_repaint();
+}
+
+/* Moves a polygon, returns a new one*/
+FilledPolygon *polygon_move(FilledPolygon *source_polygon, double move_x, double move_y){
+  if (source_polygon->npoints < 3) //coordinates needed to draw a polygon
+    return NULL;
+  
+  FilledPolygon *polygon = polygon_duplicate(source_polygon);
+  
+  Coordinate *current_point = polygon->points;
+  
+  while (current_point != NULL){
+    current_point->x = current_point->x + move_x;
+    current_point->y = current_point->y + move_y;
+    
+    current_point = current_point->next;
+  }
+  
+  return polygon;
+}
+
+/* Move selected polygons */
+void  polygons_move_selected (GtkButton *button, gpointer user_data){
+  double move_x = atof(gtk_entry_get_text(GTK_ENTRY(move_x_input)));
+  double move_y = atof(gtk_entry_get_text(GTK_ENTRY(move_y_input)));
+    
+  /* iterate each selected polygon, and scale */
+  FilledPolygonList *current_scaling_polygon_node = selected_polygons;
+
+  while (current_scaling_polygon_node != NULL){
+    FilledPolygon *polygon_source = current_scaling_polygon_node->polygon;
+    
+    FilledPolygon *new_polygon = polygon_move(polygon_source,move_x,move_y);
+    canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,new_polygon);
+    current_scaling_polygon_node->polygon = new_polygon;
+    current_scaling_polygon_node = current_scaling_polygon_node->next;
+  }  
 
   canvas_repaint();
 }

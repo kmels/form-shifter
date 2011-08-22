@@ -27,7 +27,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 /* from global */
-GtkWidget *scale_x_input,*scale_y_input,*degrees_input,*shears_axis_input,*shears_input;
+GtkWidget *scale_x_input,*scale_y_input,*degrees_input,*shears_axis_input,*shears_input,*move_x_input,*move_y_input;
 
 FormShifterToolItemType current_tool;
 
@@ -152,6 +152,42 @@ void get_shears_tab(GtkWidget **container, GtkWidget **label){
   gtk_box_pack_start (GTK_BOX (*container), shears_button, FALSE, TRUE, 0);
 }
 
+void get_move_tab(GtkWidget **container, GtkWidget **label){
+  GtkWidget *x_label,*y_label,*move_button,*x_hbox,*y_hbox;
+  *label = gtk_label_new("Move");
+  *container = gtk_vbox_new (FALSE, 1);    
+
+  /* create widgets */
+  x_hbox = gtk_hbox_new (FALSE, 1);
+  x_label = gtk_label_new("x: ");
+  move_x_input = gtk_spin_button_new_with_range(-9999,9999,0.01); //from 1 to 9999 by 1
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON(move_x_input),1);
+
+  y_hbox = gtk_hbox_new (FALSE, 1);
+  y_label = gtk_label_new("y: ");
+  move_y_input = gtk_spin_button_new_with_range(-9999,9999,0.01); //from 1 to 9999 by 1
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON(move_y_input),1);     
+
+  move_button = gtk_button_new_with_label("OK");
+  g_signal_connect(move_button, "clicked", G_CALLBACK(polygons_move_selected), NULL);   
+
+  //pack x
+  gtk_box_pack_start (GTK_BOX (x_hbox), x_label, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (x_hbox), move_x_input, FALSE, TRUE, 0);
+
+  //pack y
+  gtk_box_pack_start (GTK_BOX (y_hbox), y_label, FALSE, TRUE, 0);  
+  gtk_box_pack_start (GTK_BOX (y_hbox), move_y_input, FALSE, TRUE, 0);
+
+  //pack main scale box
+  gtk_box_pack_start (GTK_BOX (*container), x_hbox, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (*container), y_hbox, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (*container), move_button, FALSE, TRUE, 0);
+  
+  /* disable it, there are no points selected */
+  //gtk_widget_set_sensitive(*container,FALSE);
+}
+
 void widgets_get_right_toolbar(GtkWidget **toolbar){
   *toolbar = gtk_vbox_new(FALSE,1);
 
@@ -172,6 +208,11 @@ void widgets_get_right_toolbar(GtkWidget **toolbar){
   GtkWidget *shears_tab,*shears_label;
   get_shears_tab(&shears_tab,&shears_label);
   gtk_notebook_append_page(GTK_NOTEBOOK(tabs),shears_tab,shears_label);
+
+  //Move
+  GtkWidget *move_tab,*move_label;
+  get_move_tab(&move_tab,&move_label);
+  gtk_notebook_append_page(GTK_NOTEBOOK(tabs),move_tab,move_label);
 
   gtk_box_pack_start(GTK_BOX(*toolbar), tabs, FALSE, TRUE, 0);
 }
