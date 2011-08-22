@@ -24,6 +24,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include "canvas.h"
 #include <math.h>
 #include <string.h>
+#include <unistd.h>
 
 GtkWidget *scale_x_input,*scale_y_input;
 
@@ -314,8 +315,6 @@ void  polygons_scale_selected (GtkButton *button, gpointer user_data){
   /* iterate each selected polygon, and scale */
   FilledPolygonList *current_scaling_polygon_node = selected_polygons;
 
-  //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
-
   while (current_scaling_polygon_node != NULL){    
     FilledPolygon *polygon_source = current_scaling_polygon_node->polygon;
 
@@ -326,19 +325,11 @@ void  polygons_scale_selected (GtkButton *button, gpointer user_data){
     factor_x = scale_x_target/dimensions.width;
     factor_y = scale_y_target/dimensions.height;
     
-    //printf("source antes: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
-    //find it within all polygons, and reset
     canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,polygon_scale(polygon_source,factor_x,factor_y));
     
-    current_scaling_polygon_node->polygon = polygon_scale(polygon_source,factor_x,factor_y);
-    //
-    //printf("source despues: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
-    
+    current_scaling_polygon_node->polygon = polygon_scale(polygon_source,factor_x,factor_y);    
     current_scaling_polygon_node = current_scaling_polygon_node->next;
-    //printf("end scaling \n\n\n\n\n");
-  }
-  
-  //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
+  }  
 
   canvas_repaint();
 }
@@ -346,30 +337,25 @@ void  polygons_scale_selected (GtkButton *button, gpointer user_data){
 /* Scales selected polygons */
 void  polygons_rotate_selected (GtkButton *button, gpointer user_data){
   int degrees = atoi(gtk_entry_get_text(GTK_ENTRY(degrees_input)));
-    
+  int nsteps = atoi(gtk_entry_get_text(GTK_ENTRY(animation_steps_input)));
+  int step;
+
+  double degrees_per_step = (double)degrees / nsteps;
+
   /* iterate each selected polygon, and scale */
   FilledPolygonList *current_scaling_polygon_node = selected_polygons;
-
-
-  while (current_scaling_polygon_node != NULL){    
-    FilledPolygon *polygon_source = current_scaling_polygon_node->polygon;
-
-            
-    //printf("source antes: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
-    //find it within all polygons, and reset
-    canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,polygon_rotate(polygon_source,degrees));
-    
-    current_scaling_polygon_node->polygon = polygon_rotate(polygon_source,degrees);
-    //
-    //printf("source despues: %p, first: %d,%d ",polygon_source,polygon_source->points->x,polygon_source->points->y);
+  
+  while (current_scaling_polygon_node != NULL){        
+    for (step = 0; step < nsteps; step ++){
+      FilledPolygon *rotated_polygon = polygon_rotate(current_scaling_polygon_node->polygon,degrees_per_step);
+      canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,rotated_polygon);
+      current_scaling_polygon_node->polygon = rotated_polygon;            
+      canvas_repaint();
+    }
     
     current_scaling_polygon_node = current_scaling_polygon_node->next;
-    //printf("end scaling \n\n\n\n\n");
-  }
+  }  
   
-  //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
-
-  canvas_repaint();
 }
 
 /* Shears a polygon, returns a new one*/

@@ -27,7 +27,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 /* from global */
-GtkWidget *scale_x_input,*scale_y_input,*degrees_input,*shears_axis_input,*shears_input,*move_x_input,*move_y_input;
+GtkWidget *scale_x_input,*scale_y_input,*degrees_input,*shears_axis_input,*shears_input,*move_x_input,*move_y_input,*animation_time_input,*animation_steps_input;
 
 FormShifterToolItemType current_tool;
 
@@ -90,16 +90,16 @@ void get_rotate_tab(GtkWidget **container, GtkWidget **label){
   *container = gtk_vbox_new(FALSE,1);
   *label = gtk_label_new("Rotate");
   
-  GtkWidget *degrees_hbox,*degrees_label,*degrees_button,*animation_time_hbox,*animation_time_label,*animation_time_input;
+  GtkWidget *degrees_hbox,*degrees_label,*degrees_button,*animation_steps_hbox,*animation_steps_label;
 
   /* create widgets */
   degrees_hbox = gtk_hbox_new (FALSE, 1);  
   degrees_label = gtk_label_new("Degrees: ");
-  degrees_input = gtk_spin_button_new_with_range(1,360,1); //from 1 to 360 by 1
-  
-  animation_time_hbox = gtk_hbox_new (FALSE, 1);
-  animation_time_label = gtk_label_new("Animation time (seconds): ");
-  animation_time_input = gtk_spin_button_new_with_range(1,60,1); //from 1 to 60 by 1
+  degrees_input = gtk_spin_button_new_with_range(1,360,1); //from 1 to 360 by 1  
+
+  animation_steps_hbox = gtk_hbox_new (FALSE, 1);
+  animation_steps_label = gtk_label_new("Animation steps: ");
+  animation_steps_input = gtk_spin_button_new_with_range(1,50,1); //from 1 to 50 by 1
 
   degrees_button = gtk_button_new_with_label("OK");
   g_signal_connect(degrees_button, "clicked", G_CALLBACK(polygons_rotate_selected), NULL);   
@@ -107,12 +107,13 @@ void get_rotate_tab(GtkWidget **container, GtkWidget **label){
   //degrees pack
   gtk_box_pack_start (GTK_BOX (degrees_hbox), degrees_label, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (degrees_hbox), degrees_input, FALSE, TRUE, 0);
-  //animation time pack
-  gtk_box_pack_start (GTK_BOX (animation_time_hbox), animation_time_label, FALSE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (animation_time_hbox), animation_time_input, FALSE, TRUE, 0);
   
+  //animation steps pack
+  gtk_box_pack_start (GTK_BOX (animation_steps_hbox), animation_steps_label, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (animation_steps_hbox), animation_steps_input, FALSE, TRUE, 0);
+
   gtk_box_pack_start (GTK_BOX (*container), degrees_hbox, FALSE, TRUE, 0);
-  gtk_box_pack_start (GTK_BOX (*container), animation_time_hbox, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (*container), animation_steps_hbox, FALSE, TRUE, 0);
   gtk_box_pack_start (GTK_BOX (*container), degrees_button, FALSE, TRUE, 0);
 }
 
