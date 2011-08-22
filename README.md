@@ -15,11 +15,3 @@ How to compile and run
 	make
 	./form-shifter
 	
-Todo
-----
- + Default color for house roof/body
- + Set cursor depending on current tool
- + Scale
- + Rotate
- + Shear
- + Translate
