@@ -33,9 +33,11 @@ FilledPolygonList *all_polygons;
 void canvas_paint_initial_state(){
   cairo_t *cr = gdk_cairo_create(canvas->window);
   FilledPolygon *house = polygons_get_house();
-  polygons_paint_on_canvas(house,cr);
-  all_polygons = get_polygon_node(house,NULL);
+  FilledPolygon *tree = polygons_get_tree();
   
+  all_polygons = get_polygon_node(house,get_polygon_node(tree,NULL));
+  polygons_list_paint_on_canvas(all_polygons,cr);
+
   /* update input values */
   widgets_update_input_values();
 }
@@ -101,7 +103,7 @@ void canvas_add_polygon_to_selected_list(FilledPolygon *polygon){
   if (selected_polygons==NULL){
     selected_polygons = (FilledPolygonList*) malloc(sizeof(FilledPolygonList));
     selected_polygons->polygon = polygon;
-    selected_polygons->next = NULL;    
+    selected_polygons->next = NULL;
 
     return;
   }

@@ -92,7 +92,7 @@ FilledPolygon* polygons_get_house(){
 
   /* house polygon */ 
   FilledPolygon *house = (FilledPolygon*) malloc(sizeof(FilledPolygon));
-  house->color = get_color(0,0,255,255);
+  house->color = get_color(0,0,255,155);
   
   Coordinate *roof_right = get_coordinate(350,100,NULL);
   Coordinate *roof_top = get_coordinate(200,50,roof_right);
@@ -110,6 +110,33 @@ FilledPolygon* polygons_get_house(){
   return house;
 }
 
+/* Default polygon, a tree */
+FilledPolygon* polygons_get_tree(){
+  /* tree polygon */ 
+  FilledPolygon *tree = (FilledPolygon*) malloc(sizeof(FilledPolygon));
+  tree->color = get_color(0,255,0,155);
+  
+  Coordinate *n1 = get_coordinate(310,450,NULL);
+  Coordinate *n2 = get_coordinate(310,420,n1);
+  Coordinate *n3 = get_coordinate(280,420,n2);
+  Coordinate *n4 = get_coordinate(310,380,n3);
+  Coordinate *n5 = get_coordinate(280,380,n4);
+  Coordinate *n6 = get_coordinate(330,350,n5);
+  Coordinate *n7 = get_coordinate(380,380,n6);
+  Coordinate *n8 = get_coordinate(350,380,n7);
+  Coordinate *n9 = get_coordinate(380,400,n8);
+  Coordinate *n10 = get_coordinate(350,400,n9);
+  Coordinate *n11 = get_coordinate(380,420,n10);
+  Coordinate *n12 = get_coordinate(350,420,n11);
+  Coordinate *n13 = get_coordinate(350,450,n12);
+  
+  tree->points = n13;
+  tree->npoints = 13;
+  tree->rotate_pivot = get_coordinate(330, 400, NULL); //mid coordinate
+
+  return tree;
+}
+
 /* Paints a polygon */ 
 void polygons_paint_on_canvas(FilledPolygon *polygon, cairo_t *cr){
   if (polygon->npoints < 3) //coordinates needed to draw a polygon
@@ -117,7 +144,8 @@ void polygons_paint_on_canvas(FilledPolygon *polygon, cairo_t *cr){
     
   Coordinate *previous_point = polygon->points;
   Coordinate *next_point = previous_point->next;
-
+Color color = polygon->color;
+  cairo_set_source_rgba(cr,(double)color.red / 255, (double)color.green / 255, (double)color.blue / 255,1);
   while (next_point != NULL){
     cairo_move_to(cr,previous_point->x,previous_point->y);
     cairo_line_to(cr,next_point->x,next_point->y);
@@ -133,8 +161,7 @@ void polygons_paint_on_canvas(FilledPolygon *polygon, cairo_t *cr){
   cairo_stroke(cr);
 
   //now fill
-  double x,y;
-  Color color = polygon->color;
+  double x,y;  
 
   cairo_set_source_rgba(cr,(double)color.red / 255, (double)color.green / 255, (double)color.blue / 255,(double)color.alpha/255);
   for (x=0; x < canvas->allocation.width; x++){
@@ -416,6 +443,9 @@ FilledPolygon *polygon_move(FilledPolygon *source_polygon, double move_x, double
     
     current_point = current_point->next;
   }
+  
+  polygon->rotate_pivot->x = polygon->rotate_pivot->x+move_x;
+  polygon->rotate_pivot->y = polygon->rotate_pivot->y+move_y;
   
   return polygon;
 }
