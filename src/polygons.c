@@ -23,6 +23,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include "global.h"
 #include "canvas.h"
 #include <math.h>
+#include <string.h>
 
 GtkWidget *scale_x_input,*scale_y_input;
 
@@ -302,7 +303,6 @@ FilledPolygon *polygon_rotate(FilledPolygon *source_polygon, double degrees){
   return polygon;
 }
 
-
 /* Scales selected polygons */
 void  polygons_scale_selected (GtkButton *button, gpointer user_data){
   int scale_x_target = atoi(gtk_entry_get_text(GTK_ENTRY(scale_x_input)));
@@ -365,6 +365,49 @@ void  polygons_rotate_selected (GtkButton *button, gpointer user_data){
     
     current_scaling_polygon_node = current_scaling_polygon_node->next;
     //printf("end scaling \n\n\n\n\n");
+  }
+  
+  //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);
+
+  canvas_repaint();
+}
+
+/* Shears a polygon, returns a new one*/
+FilledPolygon *polygon_shear(FilledPolygon *source_polygon, double shear_percentage,char *axis){    
+  if (source_polygon->npoints < 3) //coordinates needed to draw a polygon
+    return NULL;  
+  
+  FilledPolygon *polygon = polygon_duplicate(source_polygon);  //copy the polygon
+  
+  //map every coordinate, start from the first polygon coordinate again.
+  Coordinate *current_point = polygon->points;   
+  
+  while (current_point != NULL){        
+    if (strcmp(axis,"x")==0)
+      current_point->x = current_point->x + shear_percentage*current_point->y;
+    else
+      current_point->y = current_point->y + shear_percentage*current_point->x;
+        
+    current_point = current_point->next;
+  }
+  
+  return polygon;
+}
+
+/* Shears selected polygons */
+void  polygons_shear_selected (GtkButton *button, gpointer user_data){
+  double shear_quantity = atof(gtk_entry_get_text(GTK_ENTRY(shears_input)));
+    
+  /* iterate each selected polygon, and scale */
+  FilledPolygonList *current_scaling_polygon_node = selected_polygons;
+
+  while (current_scaling_polygon_node != NULL){    
+    FilledPolygon *polygon_source = current_scaling_polygon_node->polygon;
+    
+    FilledPolygon *new_polygon = polygon_shear(polygon_source,shear_quantity,gtk_combo_box_get_active_text(shears_axis_input));
+    canvas_all_polygons_replace_existing_polygon(current_scaling_polygon_node->polygon,new_polygon);
+    current_scaling_polygon_node->polygon = new_polygon;    
+    current_scaling_polygon_node = current_scaling_polygon_node->next;
   }
   
   //printf ("selected first point: %d,%d\n",selected_polygons->polygon->points->x,selected_polygons->polygon->points->y);

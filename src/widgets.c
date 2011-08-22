@@ -131,12 +131,12 @@ void get_shears_tab(GtkWidget **container, GtkWidget **label){
   gtk_combo_box_set_active(GTK_COMBO_BOX(shears_axis_input),0);
   
   shears_input_hbox = gtk_hbox_new (FALSE, 1);
-  shears_input_label = gtk_label_new("Pixels: ");
-  shears_input = gtk_spin_button_new_with_range(-9999,9999,0.01); //from -9999 to 9999 by 0.01
-  gtk_spin_button_set_value (GTK_SPIN_BUTTON(shears_input),1);
+  shears_input_label = gtk_label_new("Shear parameter: ");
+  shears_input = gtk_spin_button_new_with_range(-1,1,0.01); //from -9999 to 9999 by 0.01
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON(shears_input),0.01);
 
   shears_button = gtk_button_new_with_label("OK");
-  //g_signal_connect(degrees_button, "clicked", G_CALLBACK(polygons_rotate_selected), NULL);   
+  g_signal_connect(shears_button, "clicked", G_CALLBACK(polygons_shear_selected), NULL);
 
   //axis pack
   gtk_box_pack_start (GTK_BOX (shears_axis_hbox), shears_axis_label, FALSE, TRUE, 0);
