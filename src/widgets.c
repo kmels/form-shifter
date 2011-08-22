@@ -27,7 +27,7 @@ along with form-shifter.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 /* from global */
-GtkWidget *scale_x_input,*scale_y_input,*degrees_input;
+GtkWidget *scale_x_input,*scale_y_input,*degrees_input,*shears_axis_input,*shears_input;
 
 FormShifterToolItemType current_tool;
 
@@ -116,6 +116,42 @@ void get_rotate_tab(GtkWidget **container, GtkWidget **label){
   gtk_box_pack_start (GTK_BOX (*container), degrees_button, FALSE, TRUE, 0);
 }
 
+void get_shears_tab(GtkWidget **container, GtkWidget **label){
+  *container = gtk_vbox_new(FALSE,1);
+  *label = gtk_label_new("Shears");
+  
+  GtkWidget *shears_axis_label,*shears_axis_hbox,*shears_input_label,*shears_input_hbox,*shears_button;
+
+  /* create widgets */
+  shears_axis_hbox = gtk_hbox_new (FALSE, 1);
+  shears_axis_label = gtk_label_new("Axis: ");
+  shears_axis_input = gtk_combo_box_text_new();
+  gtk_combo_box_append_text(GTK_COMBO_BOX(shears_axis_input),"x");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(shears_axis_input),"y");
+  gtk_combo_box_set_active(GTK_COMBO_BOX(shears_axis_input),0);
+  
+  shears_input_hbox = gtk_hbox_new (FALSE, 1);
+  shears_input_label = gtk_label_new("Pixels: ");
+  shears_input = gtk_spin_button_new_with_range(-9999,9999,0.01); //from -9999 to 9999 by 0.01
+  gtk_spin_button_set_value (GTK_SPIN_BUTTON(shears_input),1);
+
+  shears_button = gtk_button_new_with_label("OK");
+  //g_signal_connect(degrees_button, "clicked", G_CALLBACK(polygons_rotate_selected), NULL);   
+
+  //axis pack
+  gtk_box_pack_start (GTK_BOX (shears_axis_hbox), shears_axis_label, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (shears_axis_hbox), shears_axis_input, FALSE, TRUE, 0);
+
+  //input pack
+  gtk_box_pack_start (GTK_BOX (shears_input_hbox), shears_input_label, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (shears_input_hbox), shears_input , FALSE, TRUE, 0);
+  
+  //pack boxes and button
+  gtk_box_pack_start (GTK_BOX (*container), shears_axis_hbox, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (*container), shears_input_hbox, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (*container), shears_button, FALSE, TRUE, 0);
+}
+
 void widgets_get_right_toolbar(GtkWidget **toolbar){
   *toolbar = gtk_vbox_new(FALSE,1);
 
@@ -132,6 +168,11 @@ void widgets_get_right_toolbar(GtkWidget **toolbar){
   get_rotate_tab(&rotate_tab,&rotate_label);
   gtk_notebook_append_page(GTK_NOTEBOOK(tabs),rotate_tab,rotate_label);
   
+  //shears
+  GtkWidget *shears_tab,*shears_label;
+  get_shears_tab(&shears_tab,&shears_label);
+  gtk_notebook_append_page(GTK_NOTEBOOK(tabs),shears_tab,shears_label);
+
   gtk_box_pack_start(GTK_BOX(*toolbar), tabs, FALSE, TRUE, 0);
 }
 
